@@ -1,10 +1,10 @@
 mod config;
-mod wireguard;
+mod wg_controller;
 
 use log::info;
-use actix_web::{get, post, web, App, HttpServer, Responder, ResponseError};
+use actix_web::{get, post, web, App, HttpServer, Responder};
 use crate::config::{VPNConfig, ConfigurationError};
-use crate::wireguard::{connect_wg, disconnect_wg, check_wg_status};
+use crate::wg_controller::{connect_wg, disconnect_wg, check_wg_status};
 
 #[post("/configure")]
 /// Handles the `/configure` endpoint.
@@ -12,7 +12,7 @@ use crate::wireguard::{connect_wg, disconnect_wg, check_wg_status};
 /// This function configures the VPN based on the provided configuration.
 /// It returns a success message if the configuration is successful,
 /// or an error if something goes wrong.
-async fn configure(config: web::Json<VPNConfig>) -> Result<String, ConfigurationError> {
+async fn configure(_config: web::Json<VPNConfig>) -> Result<String, ConfigurationError> {
     // Configuration Logic (including validation, writing to config file)
     Ok("Configuration successful".to_string())
 }
@@ -71,7 +71,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .data(config.clone()) // Share the configuration with the app
+            .app_data(web::Data::new(config.clone())) // Share the configuration with the app
             .service(status)
             .service(configure)
             .service(connect)
