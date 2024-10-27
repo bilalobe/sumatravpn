@@ -37,9 +37,12 @@ impl VPNConfig {
 pub enum ConfigurationError {
     #[error("Command error: {0}")]
     CommandError(String),
+    #[error("Command failed")]
+    CommandFailed,
     #[error("Environment variable error: {0}")]
     EnvVarError(String),
-    // Add other error variants as necessary
+    #[error("IO error: {0}")]
+    IOError(#[from] std::io::Error),
 }
 
 impl ResponseError for ConfigurationError {}
